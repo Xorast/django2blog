@@ -2,6 +2,7 @@ from django.shortcuts   import render, get_object_or_404, redirect
 from django.utils       import timezone
 from .models            import Post
 from .forms             import BlogPostForm
+from django.http        import HttpResponseForbidden
 
 def get_posts(request):
     posts = Post.objects.all()
@@ -35,12 +36,22 @@ def new_post(request):
         
         
 def edit_post(request, pk):
+        
     post = get_object_or_404(Post, pk=pk)
+    """
+    Interdire l'accès aux utilisateurs
+    """
+    if not ((request.user == post.author) or (request.user.is_superuser)):
+        return HttpResponseForbidden()
+    
     if request.method == "POST":
+        
         form = BlogPostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             post = form.save()
-            return redirect('post_detail', post.pk)        
+            return redirect('post_detail', post.pk)
+            
     else:
-        form = BlogPostForm(instance=post)
+         form = BlogPostForm(instance=post)
+    
     return render(request, 'posts/blogpostform.html', {'form': form})
