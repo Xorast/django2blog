@@ -20,36 +20,27 @@ def post_detail(request, pk):
     post.save()
     return render(request, "posts/postdetail.html", {'post': post})
 
-def create_or_edit_post(request, pk=None):
-    """
-    Create a view that allows us to create
-    or edit a post depending if the Post ID
-    is null or not
-    
-    The first line (post = ...) if to take already existing post, 
-    to edit it and showing all the data for that post.
-    """
-    post = get_object_or_404(Post, pk=pk) if pk else None
-    
+def new_post(request):
     if request.method == "POST":
-        
-        form = BlogPostForm(request.POST, request.FILES, instance=post)
-        
+        form = BlogPostForm(request.POST, request.FILES)
         if form.is_valid():
-            
-            post        = form.save(commit=False)
-            """
-            To keep the same author if the admin want to edit,
-            if no author ==> first creation, take the user as author
-            if author    ==> we keep it (no action on it)
-            """
-            if not post.author : 
-                post.author = request.user
+            post = form.save(commit=False)
+            post.author = request.user
             post.save()
-            
             return redirect('post_detail', post.pk)
-    
+    else:
+        form = BlogPostForm()
+        
+    return render(request, 'posts/blogpostform.html', {'form': form})
+        
+        
+def edit_post(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == "POST":
+        form = BlogPostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            post = form.save()
+            return redirect('post_detail', post.pk)        
     else:
         form = BlogPostForm(instance=post)
-    
     return render(request, 'posts/blogpostform.html', {'form': form})
