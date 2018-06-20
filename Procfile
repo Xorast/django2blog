@@ -1,1 +1,1 @@
-web: gunicorn djangoblog.wgsi:application
+web: gunicorn django-blog-3.wgsi:application
