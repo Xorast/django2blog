@@ -1,0 +1,1 @@
+[![Build Status](https://api.travis-ci.org/Xorast/django2blog.svg)](https://travis-ci.org/Xorast/django2blog)
